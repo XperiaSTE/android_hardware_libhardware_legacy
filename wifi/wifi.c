@@ -70,7 +70,7 @@ static char primary_iface[PROPERTY_VALUE_MAX];
 // sockets is in
 
 #ifdef USES_TI_MAC80211
-#define P2P_INTERFACE			"p2p0"
+#define P2P_INTERFACE			"wlan0"
 struct nl_sock *nl_soc;
 struct nl_cache *nl_cache;
 struct genl_family *nl80211;
@@ -129,7 +129,7 @@ static const char P2P_SUPPLICANT_NAME[] = "p2p_supplicant";
 static const char P2P_PROP_NAME[]       = "init.svc.p2p_supplicant";
 static const char SUPP_CONFIG_TEMPLATE[]= "/system/etc/wifi/wpa_supplicant.conf";
 static const char SUPP_CONFIG_FILE[]    = "/data/misc/wifi/wpa_supplicant.conf";
-static const char P2P_CONFIG_FILE[]     = "/data/misc/wifi/p2p_supplicant.conf";
+static const char P2P_CONFIG_FILE[]     = "/data/misc/wifi/wpa_supplicant.conf";
 static const char CONTROL_IFACE_PATH[]  = "/data/misc/wifi/sockets";
 static const char MODULE_FILE[]         = "/proc/modules";
 
@@ -813,13 +813,6 @@ int wifi_start_supplicant(int p2p_supported)
         ALOGE("Wi-Fi entropy file was not created");
     }
 
-#ifdef USES_TI_MAC80211
-    if (p2p_supported && add_remove_p2p_interface(1) < 0) {
-        ALOGE("Wi-Fi - could not create p2p interface");
-        return -1;
-    }
-#endif
-
     /* Clear out any stale socket files that might be left over. */
     wpa_ctrl_cleanup();
 
@@ -887,13 +880,6 @@ int wifi_stop_supplicant(int p2p_supported)
         && strcmp(supp_status, "stopped") == 0) {
         return 0;
     }
-
-#ifdef USES_TI_MAC80211
-    if (p2p_supported && add_remove_p2p_interface(0) < 0) {
-        ALOGE("Wi-Fi - could not remove p2p interface");
-        return -1;
-    }
-#endif
 
     property_set("ctl.stop", supplicant_name);
     sched_yield();
